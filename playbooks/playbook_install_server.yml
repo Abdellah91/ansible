@@ -1,0 +1,5 @@
+- name: monplaybook
+  hosts: qa_web
+  become: yes
+  roles:
+  - wordpress

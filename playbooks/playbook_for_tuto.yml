@@ -1,0 +1,54 @@
+---
+- name: "[TUTO]"
+  hosts: all
+  vars:
+    - md5sum: "80c3940537ab45ad619b29d937946303"
+  tasks:
+
+    - name: "[TUTO] check md5sum"
+      stat:
+        path: /tmp/HelloWorld.txt
+        get_checksum: yes
+        checksum_algorithm: md5
+      register: sum5
+
+    - set_fact:
+        data: "0"
+      when: sum5.stat.checksum is not defined
+
+    - set_fact:
+        data: "{{ sum5.stat.checksum }}"
+      when: sum5.stat.checksum is defined
+
+    - name: "[TUTO] Block"
+      block:
+
+
+        - name: "[TUTO] file copy"
+          copy:
+            src: ./HelloWorld.txt
+            dest: /tmp/HelloWorld.txt
+
+        #- name: "[TUTO] print sum5 to debug"
+          #debug:
+            #msg: "{{ sum5.stat.checksum }}"
+
+        - name: "[TUTO] add line in at the end of a file"
+          lineinfile:
+            path: /tmp/HelloWorld.txt
+            line: "hello all"
+
+
+        - name: "[TUTO] replace string in a file"
+          lineinfile:
+            path: /tmp/HelloWorld.txt
+            regexp: '(.*)HelloWorld(.*)'
+            line: \1people\2
+            backrefs: yes
+
+        - name: "[TUTO] insert line in a file before given regexp"
+          lineinfile:
+            path: /tmp/HelloWorld.txt
+            insertbefore: '(.*)people(.*)'
+            line: "choose one salutation\nHello Guys"
+      when: sum5.stat.checksum is not defined or data != sum5.stat.checksum
